@@ -1,30 +1,26 @@
-### CLI Version ###
-# Version 1.0
+### GUI Update ###
+# Version 2.0
 # -------------------------------------------------------
-# Features: Password breach check via HIBP API, Password strength evaluation
+# New Features & Upgrades from v1 CLI:
+# - Graphical User Interface using Tkinter
+# - Clear input button added for improved UX
+# - Error handling with pop-ups instead of terminal prints
+# - Real-time result display in GUI
+# - Password strength and breach results integrated into a single output
+# - Bug fixes: consistent SHA1 hashing, better API error handling
 # -------------------------------------------------------
 
+import tkinter as tk
+from tkinter import ttk, messagebox
 import hashlib
 import requests
-import time
-import sys
 import string
 
 # ------------------------
-# Logic Functions
+# Password Logic Functions
 # ------------------------
 
-# CLI loading animation to enhance UX and mimic "progress"
-def display_loading(message, duration=1.5):
-    print(message, end="")
-    for _ in range(int(duration / 0.3)):
-        for dot in ". .. ...".split():
-            sys.stdout.write(f"\r{message}{dot} ")
-            sys.stdout.flush()
-            time.sleep(0.3)
-    print("\r", end="")
-
-# Hash a password using SHA1 and return prefix & suffix for HIBP k-anonymity
+# Hash a password using SHA1 and return prefix & suffix
 def hash_password_sha1(password):
     sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
     return sha1_hash[:5], sha1_hash[5:]
@@ -63,37 +59,63 @@ def evaluate_password_strength(password):
     else:
         return "Weak"
 
-# Display the results for a given password
-def display_results(password, breach_count, strength):
-    if breach_count:
-        print(f"⚠️  Exposed {breach_count} times! Consider changing it.\nStrength: {strength}")
-    else:
-        print(f"✅  Not found in known breaches.\nStrength: {strength}")
+# ------------------------
+# GUI Functions
+# ------------------------
+
+# Check password on button click
+def check_password():
+    password = password_entry.get().strip()
+    if not password:
+        messagebox.showwarning("Input Error", "Please enter a password.")
+        return
+
+    try:
+        breach_count = get_password_breach_count(password)
+        strength = evaluate_password_strength(password)
+
+        if breach_count:
+            result_text.set(f"⚠️ Exposed {breach_count} times! Consider changing it.\nStrength: {strength}")
+        else:
+            result_text.set(f"✅ Not found in known breaches.\nStrength: {strength}")
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {e}")
+
+# Clear input and result display
+def clear_input():
+    password_entry.delete(0, tk.END)
+    result_text.set("")
 
 # ------------------------
-# Main CLI Application
+# Main GUI Application
 # ------------------------
 
 def main():
-    print("=== Password Integrity Checker ===\n")
-    
-    while True:
-        password = input("Enter a password to check (or type 'exit' to quit): ").strip()
-        
-        if password.lower() == "exit":
-            print("\nExiting Password Integrity Checker. Stay safe!")
-            break
+    global root, password_entry, result_text
 
-        if not password:
-            print("Input Error: Please enter a password.\n")
-            continue
+    # Create main application window
+    root = tk.Tk()
+    root.title("Password Integrity Checker")
+    root.geometry("400x200")
+    root.resizable(False, False)
 
-        display_loading("Checking HIBP API")
-        breach_count = get_password_breach_count(password)
-        strength = evaluate_password_strength(password)
-        display_results(password, breach_count, strength)
-        print()
+    # Password input
+    ttk.Label(root, text="Enter Password:").pack(pady=(20, 5))
+    password_entry = ttk.Entry(root, width=30, show="*")
+    password_entry.pack()
 
+    # Buttons
+    button_frame = ttk.Frame(root)
+    button_frame.pack(pady=10)
+    ttk.Button(button_frame, text="Check Password", command=check_password).grid(row=0, column=0, padx=5)
+    ttk.Button(button_frame, text="Clear", command=clear_input).grid(row=0, column=1, padx=5)
+
+    # Result display
+    result_text = tk.StringVar()
+    ttk.Label(root, textvariable=result_text, wraplength=350, justify="center").pack(pady=10)
+
+    # Start Tkinter event loop
+    root.mainloop()
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
-# Password Integrity Checker – CLI Version 1.0
+# Password Integrity Checker – GUI Version 2.0
 
 #### Description:
-The Password Integrity Checker is a command-line (CLI) Python application that evaluates the strength and security of a user-entered password. It checks whether the password has appeared in known data breaches using the Have I Been Pwned (HIBP) API and evaluates password strength based on length and character variety.
+The Password Integrity Checker is a Tkinter-based Python GUI application that evaluates the strength and security of a user-entered password. It checks whether the password has appeared in known data breaches using the Have I Been Pwned (HIBP) API and evaluates password strength based on length and character variety.  
 
 ---
 
@@ -9,34 +9,36 @@ The Password Integrity Checker is a command-line (CLI) Python application that e
 
 ### Breach Checking (Have I Been Pwned API)
 - The program hashes the password using SHA-1 and queries the HIBP API using the k-anonymous model to check if the password has ever been exposed.
-- Returns the number of breaches found for the entered password.
+- Displays the number of breaches found for the entered password in the GUI.
+- Handles API errors gracefully with pop-up dialogs.
 
 ### Password Strength Evaluation
-- Scores passwords as **Weak**, **Medium**, or **Strong** based on:
+- Evaluates passwords as **Weak**, **Medium**, or **Strong** based on:
   - Length
   - Use of lowercase letters
   - Use of uppercase letters
   - Use of digits
   - Use of symbols
 
-### User-Friendly CLI
-- Loading animation to simulate processing while waiting for the API response.
-- Clear messages for exposed passwords, safe passwords, or input errors.
-- Exit option via typing `exit`.
+### Graphical User Interface
+- Password input box with hidden characters (`*`)
+- Buttons for **Check Password** and **Clear Input**
+- Real-time display of breach count and password strength in a single area
+- User-friendly pop-ups for errors and warnings
 
 ---
 
 ## File Overview
 
 ### `project.py`
-- Contains all top-level functions and `main()`:
+- Contains all top-level functions and GUI logic:
   - `hash_password_sha1()` – hash password and split prefix/suffix for API
   - `query_hibp_api()` – query HIBP API for breach data
   - `get_password_breach_count()` – count password appearances in breaches
   - `evaluate_password_strength()` – determine password strength
-  - `display_results()` – print breach and strength info
-  - `display_loading()` – simple CLI loading animation
-- `main()` launches the CLI interface
+  - `check_password()` – GUI button function to evaluate and display results
+  - `clear_input()` – resets input and result display
+- `main()` launches the Tkinter GUI interface
 
 ### `requirements.txt`
 - Lists required external libraries (`requests`).
@@ -54,7 +56,10 @@ python project.py
 
 - SHA-1 + K-Anonymity
 - Only the first five characters of the hash are sent to HIBP for privacy.
-- CLI Loading Animation
-- Enhances UX and mimics progress while API checks are performed.
+- GUI Interface
+- Improves user experience compared to CLI.
+- Integrated display of breach count and password strength.
 - Strength Evaluation
 - Simple, clear scoring system for immediate feedback on password safety.
+- Error Handling
+- Uses pop-ups instead of console messages for better UX.
